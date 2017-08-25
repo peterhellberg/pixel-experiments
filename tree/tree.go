@@ -5,6 +5,7 @@ import (
 	"flag"
 	"image/color"
 	"math"
+	"math/rand"
 	"os"
 	"time"
 
@@ -24,6 +25,7 @@ var (
 
 type state struct {
 	Depth   int        `json:"depth"`
+	Theta   int        `json:"theta"`
 	Angle   float64    `json:"angle"`
 	Frac    float64    `json:"frac"`
 	Length  float64    `json:"length"`
@@ -95,6 +97,8 @@ func run() {
 }
 
 func branch(imd *imdraw.IMDraw, x, y, distance, direction float64, depth int) {
+	direction = direction - float64(s.Theta)/11
+
 	x2 := x + distance*math.Sin(direction*math.Pi/180)
 	y2 := y - distance*math.Cos(direction*math.Pi/180)
 
@@ -103,13 +107,13 @@ func branch(imd *imdraw.IMDraw, x, y, distance, direction float64, depth int) {
 	if depth > 2 {
 		imd.Color = color.RGBA{158, 55, 159, 255}
 		imd.Push(start, end)
-		imd.Line((float64(depth) + 1) * 4)
+		imd.Line((float64(depth) + 1) * 3)
 	}
 
 	if depth > 1 {
 		imd.Color = color.RGBA{232, 106, 240, 55}
 		imd.Push(start, end)
-		imd.Line((float64(depth) + 1) * 3)
+		imd.Line((float64(depth) + 1) * 2)
 	}
 
 	imd.Color = color.RGBA{255, 0, 0, 255}
@@ -166,8 +170,10 @@ func update() {
 			s.Length -= 0.5
 		case pixelgl.KeyLeft:
 			s.Angle += 0.5
+			s.Theta += rand.Intn(5)
 		case pixelgl.KeyRight:
 			s.Angle -= 0.5
+			s.Theta -= rand.Intn(5)
 		case pixelgl.Key1:
 			s.Depth = 1
 		case pixelgl.Key2:
