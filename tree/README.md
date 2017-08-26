@@ -12,6 +12,7 @@ https://gist.github.com/peterhellberg/4413f33014f8232ecb5cdc113034b9ae
 | Z     | Decrease fraction by 0.005 |
 | C     | Toggle circles             |
 | L     | Toggle light               |
+| S     | Shuffle state              |
 | R     | Red color mask             |
 | G     | Green color mask           |
 | B     | Blue color mask            |
