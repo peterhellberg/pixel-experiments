@@ -88,7 +88,7 @@ func run() {
 			win.SetColorMask(s.Mask)
 
 			imd.Clear()
-			branch(imd, w/2, 0, s.Length, 0, s.Depth)
+			branch(imd, w/2, -50, s.Length, 0, s.Depth)
 			s.updated = false
 		}
 
@@ -106,14 +106,14 @@ func branch(imd *imdraw.IMDraw, x, y, distance, direction float64, depth int) {
 
 	start, end := pixel.V(x, y), pixel.V(x2, y2)
 
-	if depth > 2 {
+	if depth > 1 {
 		imd.Color = color.RGBA{158, 55, 159, 255}
 		imd.Push(start, end)
 		imd.Line((float64(depth)) * 5)
 	}
 
 	if depth > 0 {
-		imd.Color = color.RGBA{232, 106, 240, 55}
+		imd.Color = color.RGBA{232, 106, 240, 255}
 		imd.Push(start, end)
 		imd.Line((float64(depth)) * 4)
 	}
@@ -139,14 +139,13 @@ func branch(imd *imdraw.IMDraw, x, y, distance, direction float64, depth int) {
 
 		if s.Circles {
 			if depth > 0 {
-				imd.Color = color.RGBA{
-					s.Mask.R + 32%100 + 155,
-					s.Mask.G + 32%100 + 155,
-					s.Mask.B + 32%100 + 155,
-					100,
-				}
+				imd.Color = color.RGBA{s.Mask.R + 32%100 + 55, s.Mask.G + 32%100 + 55, s.Mask.B + 32%100 + 55, 72}
 				imd.Push(start)
-				imd.Circle(distance/4, float64(depth)*2)
+				imd.Circle(distance/5, float64(depth)/1.5+1)
+
+				imd.Color = color.RGBA{255, 255, 255, 144}
+				imd.Push(start, end)
+				imd.Circle(distance/8, 0)
 			} else {
 				imd.Color = color.RGBA{232, 106, 240, 55}
 				imd.Push(start, end)
