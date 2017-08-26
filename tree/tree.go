@@ -31,6 +31,7 @@ type state struct {
 	Length  float64    `json:"length"`
 	Mask    color.RGBA `json:"mask"`
 	Circles bool       `json:"circles"`
+	Light   bool       `json:"light"`
 	updated bool
 }
 
@@ -41,6 +42,7 @@ func newState() *state {
 		Length:  100,
 		Frac:    0.805,
 		Mask:    color.RGBA{255, 255, 255, 255},
+		Light:   true,
 		updated: true,
 	}
 }
@@ -107,43 +109,50 @@ func branch(imd *imdraw.IMDraw, x, y, distance, direction float64, depth int) {
 	if depth > 2 {
 		imd.Color = color.RGBA{158, 55, 159, 255}
 		imd.Push(start, end)
-		imd.Line((float64(depth) + 1) * 3)
+		imd.Line((float64(depth)) * 5)
 	}
 
-	if depth > 1 {
+	if depth > 0 {
 		imd.Color = color.RGBA{232, 106, 240, 55}
 		imd.Push(start, end)
-		imd.Line((float64(depth) + 1) * 2)
+		imd.Line((float64(depth)) * 4)
 	}
 
-	imd.Color = color.RGBA{255, 0, 0, 255}
+	imd.Color = color.RGBA{s.Mask.G, s.Mask.B, 32, 255}
 	imd.Push(start, end)
-	imd.Line(float64(depth) + 1)
+	imd.Line(float64(depth) + 2)
 
 	if depth < 1 {
-		next := pixel.V(
-			x2+distance*math.Sin(direction*math.Pi/180),
-			y2-distance*math.Cos(direction*math.Pi/180),
-		)
+		if s.Light {
+			next := pixel.V(
+				x2+distance*math.Sin(direction*math.Pi/180),
+				y2-distance*math.Cos(direction*math.Pi/180),
+			)
 
-		imd.Color = color.RGBA{55, 56, 84, 55}
-		imd.Push(next, pixel.V(x2, y2), end, pixel.V(w/2, -h))
-		imd.Polygon(2)
+			imd.Color = color.RGBA{55, 56, 84, 55}
+			imd.Push(next, pixel.V(x2, y2), end, pixel.V(w/2, -h))
+			imd.Polygon(1)
+		}
 	} else {
+		branch(imd, x2, y2, distance*s.Frac, direction-s.Angle, depth-1)
+		branch(imd, x2, y2, distance*s.Frac, direction+s.Angle, depth-1)
+
 		if s.Circles {
 			if depth > 0 {
-				imd.Color = color.RGBA{232, 106, 240, 55}
-				imd.Push(start, end)
-				imd.Circle((s.Length/10)*float64(depth), s.Length/60)
+				imd.Color = color.RGBA{
+					s.Mask.R + 32%100 + 155,
+					s.Mask.G + 32%100 + 155,
+					s.Mask.B + 32%100 + 155,
+					100,
+				}
+				imd.Push(start)
+				imd.Circle(distance/4, float64(depth)*2)
 			} else {
 				imd.Color = color.RGBA{232, 106, 240, 55}
 				imd.Push(start, end)
 				imd.Line((float64(depth) + 1) * 2)
 			}
 		}
-
-		branch(imd, x2, y2, distance*s.Frac, direction-s.Angle, depth-1)
-		branch(imd, x2, y2, distance*s.Frac, direction+s.Angle, depth-1)
 	}
 }
 
@@ -157,13 +166,20 @@ func update() {
 		case pixelgl.KeyC:
 			s.Circles = !s.Circles
 		case pixelgl.KeyR:
-			s.Mask = color.RGBA{255, 128, 128, 255}
+			s.Mask = color.RGBA{243, 119, 54, 55}
 		case pixelgl.KeyG:
-			s.Mask = color.RGBA{128, 255, 128, 255}
+			s.Mask = color.RGBA{123, 192, 67, 55}
 		case pixelgl.KeyB:
-			s.Mask = color.RGBA{128, 128, 255, 255}
+			s.Mask = color.RGBA{3, 146, 207, 100}
 		case pixelgl.KeyW:
 			s.Mask = color.RGBA{255, 255, 255, 255}
+		case pixelgl.KeyS:
+			s.Angle = rand.Float64() * 180
+			s.Length = rand.Float64() * 180
+			s.Frac = rand.Float64()
+			s.Theta = rand.Intn(100) - 50
+		case pixelgl.KeyL:
+			s.Light = !s.Light
 		case pixelgl.KeyUp:
 			s.Length += 0.5
 		case pixelgl.KeyDown:
@@ -229,6 +245,14 @@ func input(win *pixelgl.Window) {
 
 	if win.JustPressed(pixelgl.KeyW) {
 		pressed <- pixelgl.KeyW
+	}
+
+	if win.JustPressed(pixelgl.KeyS) {
+		pressed <- pixelgl.KeyS
+	}
+
+	if win.JustPressed(pixelgl.KeyL) {
+		pressed <- pixelgl.KeyL
 	}
 
 	if win.Pressed(pixelgl.KeyUp) {

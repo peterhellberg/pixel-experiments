@@ -11,6 +11,7 @@ https://gist.github.com/peterhellberg/4413f33014f8232ecb5cdc113034b9ae
 | A     | Increase fraction by 0.005 |
 | Z     | Decrease fraction by 0.005 |
 | C     | Toggle circles             |
+| L     | Toggle light               |
 | R     | Red color mask             |
 | G     | Green color mask           |
 | B     | Blue color mask            |
