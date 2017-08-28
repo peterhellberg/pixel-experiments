@@ -20,7 +20,7 @@ var (
 	texture       = xorImage(size, size)
 	distanceTable = [h * 2][w * 2]int{}
 	angleTable    = [h * 2][w * 2]int{}
-	ratio         = 32.0
+	ratio         = 16.0
 )
 
 func run() {
@@ -33,7 +33,7 @@ func run() {
 		panic(err)
 	}
 
-	win.SetSmooth(true)
+	win.SetSmooth(false)
 
 	canvas := pixelgl.NewCanvas(win.Bounds())
 
@@ -51,12 +51,14 @@ func run() {
 
 	c := win.Bounds().Center()
 
+	m := pixel.IM.Moved(c)
+
 	for !win.Closed() {
 		win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
 
 		drawFrame(canvas)
 
-		canvas.Draw(win, pixel.IM.Moved(c))
+		canvas.Draw(win, m)
 
 		win.Update()
 	}
@@ -65,11 +67,11 @@ func run() {
 func drawFrame(canvas *pixelgl.Canvas) {
 	animation := time.Since(start).Seconds()
 
-	shiftX := int(fsize * 0.2 * animation)
-	shiftY := int(fsize * 0.05 * animation)
+	shiftX := int(fsize * 0.16 * animation)
+	shiftY := int(0)
 
-	shiftLookX := int(fw/2 + float64(int(fw/2*math.Sin(animation))))
-	shiftLookY := int(fh/2 + float64(int(fh/2*math.Sin(animation*1.6))))
+	shiftLookX := int(fw/3 + float64(int(fw/3*math.Sin(animation))))
+	shiftLookY := int(fh/2 + float64(int(fh/3*math.Sin(animation*2.0))))
 
 	buffer := image.NewRGBA(image.Rect(0, 0, w, h))
 
