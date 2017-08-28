@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	w, h, size    = 640, 480, 128
+	w, h, size    = 640, 480, 256
 	fw, fh, fsize = float64(w), float64(h), float64(size)
 )
 
@@ -22,7 +22,7 @@ var (
 	texture       = plasmaImage(size, size, 1)
 	distanceTable = [h * 2][w * 2]int{}
 	angleTable    = [h * 2][w * 2]int{}
-	ratio         = 32.0
+	ratio         = 16.0
 )
 
 func run() {
@@ -35,13 +35,13 @@ func run() {
 		panic(err)
 	}
 
-	win.SetSmooth(true)
+	win.SetSmooth(false)
 
 	canvas := pixelgl.NewCanvas(win.Bounds())
 
 	go func() {
 		s := 1
-		for range time.Tick(32 * time.Millisecond) {
+		for range time.Tick(48 * time.Millisecond) {
 			s++
 
 			texture = plasmaImage(size, size, s)
@@ -62,12 +62,14 @@ func run() {
 
 	c := win.Bounds().Center()
 
+	m := pixel.IM.Moved(c)
+
 	for !win.Closed() {
 		win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
 
 		drawFrame(canvas)
 
-		canvas.Draw(win, pixel.IM.Moved(c))
+		canvas.Draw(win, m)
 
 		win.Update()
 	}
@@ -76,11 +78,11 @@ func run() {
 func drawFrame(canvas *pixelgl.Canvas) {
 	animation := time.Since(start).Seconds()
 
-	shiftX := int(fsize * 0.2 * animation)
-	shiftY := int(fsize * 0.05 * animation)
+	shiftX := int(fsize * 0.1 * animation)
+	shiftY := int(0)
 
-	shiftLookX := int(fw/2 + float64(int(fw/2*math.Sin(animation))))
-	shiftLookY := int(fh/2 + float64(int(fh/2*math.Sin(animation*1.6))))
+	shiftLookX := int(fw/3 + float64(int(fw/3*math.Sin(animation))))
+	shiftLookY := int(fh/3 + float64(int(fh/3*math.Sin(animation/2))))
 
 	buffer := image.NewRGBA(image.Rect(0, 0, w, h))
 
