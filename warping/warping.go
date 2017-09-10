@@ -21,9 +21,10 @@ import (
 )
 
 var (
-	mode   int
-	scale  float64
-	expand bool
+	mode     int
+	scale    float64
+	position float64
+	expand   bool
 
 	w, h   int
 	fw, fh float64
@@ -31,6 +32,7 @@ var (
 	input chan pixelgl.Button
 
 	delay time.Duration
+	start time.Time
 
 	noise *opensimplex.Noise
 
@@ -53,7 +55,8 @@ func main() {
 	)
 
 	flag.StringVar(&fn, "image", "", "image")
-	flag.Float64Var(&scale, "scale", -1.8, "scale")
+	flag.Float64Var(&scale, "scale", 1, "scale")
+	flag.Float64Var(&position, "position", -1.8, "scale")
 	flag.Int64Var(&seed, "seed", 1, "seed")
 	flag.IntVar(&mode, "mode", 1, "mode")
 	flag.DurationVar(&delay, "delay", 64*time.Millisecond, "delay")
@@ -78,11 +81,11 @@ func pattern(p pixel.Vec) (float64, pixel.Vec, pixel.Vec) {
 	)
 
 	k := pixel.V(
-		fbm(p.Add(q.Scaled(scale).Add(pixel.V(1.7, 9.2)))),
-		fbm(p.Add(q.Scaled(scale).Add(pixel.V(8.3, 2.8)))),
+		fbm(p.Add(q.Scaled(position).Add(pixel.V(1.7, 9.2)))),
+		fbm(p.Add(q.Scaled(position).Add(pixel.V(8.3, 2.8)))),
 	)
 
-	v := fbm(p.Add(k.Scaled(scale * scale)))
+	v := fbm(p.Add(k.Scaled(position * position)))
 
 	return v, q, k
 }
@@ -113,104 +116,83 @@ func warp(fx, fy float64, k pixel.Vec) (int, int) {
 	return wx, wy
 }
 
-func render(win *pixelgl.Window, canvas *pixelgl.Canvas) {
-	for x := 0; x < w; x++ {
-		for y := 0; y < h; y++ {
-			fx, fy := float64(x), float64(y)
+func pixelColor(x, y int) color.RGBA {
+	fx, fy := float64(x), float64(y)
 
-			v, q, k := pattern(pixel.V(fx*0.00123, fy*0.00321))
+	v, q, k := pattern(pixel.V(fx*0.00123, fy*0.00321))
 
-			wx, wy := warp(fx, fy, k)
+	wx, wy := warp(fx, fy, k)
 
-			c := source.At(wx, wy).(color.RGBA)
+	c := source.At(wx, wy).(color.RGBA)
 
-			switch mode {
-			case 1: // Source warped by pattern
-				c = source.At(wx, wy).(color.RGBA)
-			case 2: // Source warped by pattern, glowing edges
-				if v > 0.1 {
-					c = source.At(x, y).(color.RGBA)
-				} else if v > -0.1 {
-					c = color.RGBA{c.R, c.G / 2, c.B / 4, 25}
-				}
-			case 3: // Grayscale
-				// Weighted luminosity average for human perception as per the GIMP docs:
-				// https://docs.gimp.org/2.8/en/gimp-tool-desaturate.html
-				a := uint8(float64(c.R)*0.21 + float64(c.G)*0.72 + float64(c.B)*0.07)
-
-				c = color.RGBA{a, a, a, 255}
-			case 4: // Black and white
-				uv := uint8(int(v*255) % 255)
-
-				switch {
-				case uv > 127:
-					c = color.RGBA{255, 255, 255, 255}
-				default:
-					c = color.RGBA{0, 0, 0, 255}
-				}
-			case 5: // See through black and white
-				uv := uint8(int(v*255) % 255)
-
-				switch {
-				case uv > 32 && uv < 128:
-					a := uint8(float64(c.R)*0.21 + float64(c.G)*0.72 + float64(c.B)*0.07)
-
-					c = color.RGBA{a, a, a, 255}
-				case uv > 64:
-					c = color.RGBA{255, 255, 255, 255}
-				default:
-					c = color.RGBA{0, 0, 0, 255}
-				}
-			case 6: // Black for now
-				c = color.RGBA{0, 0, 0, 255}
-			case 7: // Black for now
-				c = color.RGBA{0, 0, 0, 255}
-			case 8: // Black for now
-				c = color.RGBA{0, 0, 0, 255}
-			case 9: // Experimental
-				c = source.At(x, y).(color.RGBA)
-				a := uint8(float64(c.R)*0.21 + float64(c.G)*0.72 + float64(c.B)*0.07)
-
-				switch {
-				case q.Y > 0 && v > 0:
-					c = color.RGBA{255, a, a, 255}
-				case q.Y < 0 && v < 0:
-					c = color.RGBA{0, a, 255, 255}
-				case q.X > 0 && k.X < 0:
-					c = color.RGBA{255, 255, a, 255}
-				case q.X > 0 && k.Y > 0:
-					c = color.RGBA{a, 255, 255, 255}
-				default:
-					c = color.RGBA{a, a, a, 255}
-				}
-			case 0: // Source image without any warping
-				c = source.At(x, y).(color.RGBA)
-			}
-
-			target.SetRGBA(x, y, c)
+	switch mode {
+	case 1: // Source warped by pattern
+		c = source.At(wx, wy).(color.RGBA)
+	case 2: // Source warped by pattern, glowing edges
+		if v > 0.1 {
+			c = source.At(x, y).(color.RGBA)
+		} else if v > -0.1 {
+			c = color.RGBA{c.R, c.G / 2, c.B / 4, 25}
 		}
+	case 3: // Grayscale
+		// Weighted luminosity average for human perception as per the GIMP docs:
+		// https://docs.gimp.org/2.8/en/gimp-tool-desaturate.html
+		a := uint8(float64(c.R)*0.21 + float64(c.G)*0.72 + float64(c.B)*0.07)
+
+		c = color.RGBA{a, a, a, 255}
+	case 4: // Black and white
+		uv := uint8(int(v*255) % 255)
+
+		switch {
+		case uv > 127:
+			c = color.RGBA{255, 255, 255, 255}
+		default:
+			c = color.RGBA{0, 0, 0, 255}
+		}
+	case 5: // See through black and white
+		uv := uint8(int(v*255) % 255)
+
+		switch {
+		case uv > 32 && uv < 128:
+			a := uint8(float64(c.R)*0.21 + float64(c.G)*0.72 + float64(c.B)*0.07)
+
+			c = color.RGBA{a, a, a, 255}
+		case uv > 64:
+			c = color.RGBA{255, 255, 255, 255}
+		default:
+			c = color.RGBA{0, 0, 0, 255}
+		}
+	case 6: // Black for now
+		c = color.RGBA{0, 0, 0, 255}
+	case 7: // Black for now
+		c = color.RGBA{0, 0, 0, 255}
+	case 8: // Black for now
+		c = color.RGBA{0, 0, 0, 255}
+	case 9: // Experimental
+		c = source.At(x, y).(color.RGBA)
+		a := uint8(float64(c.R)*0.21 + float64(c.G)*0.72 + float64(c.B)*0.07)
+
+		switch {
+		case q.Y > 0 && v > 0:
+			c = color.RGBA{255, a, a, 255}
+		case q.Y < 0 && v < 0:
+			c = color.RGBA{0, a, 255, 255}
+		case q.X > 0 && k.X < 0:
+			c = color.RGBA{255, 255, a, 255}
+		case q.X > 0 && k.Y > 0:
+			c = color.RGBA{a, 255, 255, 255}
+		default:
+			c = color.RGBA{a, a, a, 255}
+		}
+	case 0: // Source image without any warping
+		c = source.At(x, y).(color.RGBA)
 	}
 
-	canvas.SetPixels(target.Pix)
-	canvas.Draw(win, matrix)
+	return c
 }
 
-func update(ticker *time.Ticker) {
+func background(ticker *time.Ticker) {
 	for range ticker.C {
-		if expand {
-			scale += 0.0025
-
-			if scale > 4 {
-				expand = false
-			}
-		} else {
-			scale -= 0.0025
-
-			if scale < -4 {
-				expand = true
-			}
-		}
-
 		logState()
 	}
 }
@@ -220,7 +202,7 @@ func setup(fn string, seed int64) error {
 
 	m, err := loadImage(fn)
 	if err != nil {
-		m = xorImage(500, 500)
+		m = xorImage(256, 256)
 	}
 
 	w, h = m.Bounds().Dx(), m.Bounds().Dy()
@@ -230,7 +212,7 @@ func setup(fn string, seed int64) error {
 	source = m
 	target = image.NewRGBA(source.Bounds())
 	bounds = pixel.R(0, 0, fw, fh)
-	matrix = flipY.Moved(bounds.Center())
+	matrix = flipY.Moved(bounds.Center()).Scaled(pixel.ZV, scale)
 
 	input = make(chan pixelgl.Button, 4)
 
@@ -238,8 +220,10 @@ func setup(fn string, seed int64) error {
 }
 
 func run() {
+	start = time.Now()
+
 	win, err := pixelgl.NewWindow(pixelgl.WindowConfig{
-		Bounds:      bounds,
+		Bounds:      pixel.R(0, 0, fw*scale, fh*scale),
 		VSync:       true,
 		Undecorated: true,
 	})
@@ -247,32 +231,72 @@ func run() {
 		panic(err)
 	}
 
-	canvas := pixelgl.NewCanvas(bounds)
-
 	ticker := time.NewTicker(delay)
 	defer ticker.Stop()
 
-	go update(ticker)
+	go background(ticker)
 	go handleInput()
 
+	canvas := pixelgl.NewCanvas(bounds)
+
+	tickRate := 1.0 / 30
+	adt := 0.0
+
+	last := time.Now()
 	for !win.Closed() {
-		win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
+		adt += time.Since(last).Seconds()
+		last = time.Now()
 
-		for _, button := range pressedButtons {
-			if win.Pressed(button) {
-				input <- button
-			}
+		processInput(win)
+
+		if adt >= tickRate {
+			adt -= tickRate
+			update()
 		}
 
-		for _, button := range justPressedButtons {
-			if win.JustPressed(button) {
-				input <- button
-			}
-		}
-
-		render(win, canvas)
+		canvas.SetPixels(target.Pix)
+		canvas.Draw(win, matrix)
 
 		win.Update()
+	}
+}
+
+func update() {
+
+	if expand {
+		position += 0.0025
+
+		if position > 4 {
+			expand = false
+		}
+	} else {
+		position -= 0.0025
+
+		if position < -4 {
+			expand = true
+		}
+	}
+
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			target.SetRGBA(x, y, pixelColor(x, y))
+		}
+	}
+}
+
+func processInput(win *pixelgl.Window) {
+	win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
+
+	for _, button := range pressedButtons {
+		if win.Pressed(button) {
+			input <- button
+		}
+	}
+
+	for _, button := range justPressedButtons {
+		if win.JustPressed(button) {
+			input <- button
+		}
 	}
 }
 
@@ -310,10 +334,10 @@ func handleInput() {
 				mode = 9
 			}
 		case pixelgl.KeyLeft:
-			scale += 0.05
+			position += 0.05
 			expand = true
 		case pixelgl.KeyRight:
-			scale -= 0.05
+			position -= 0.05
 			expand = false
 		case pixelgl.KeyS:
 			scale = -2.0
@@ -348,13 +372,13 @@ var justPressedButtons = []pixelgl.Button{
 func logState() {
 	log.Info().
 		Int("mode", mode).
-		Float64("scale", scale).
+		Float64("position", position).
 		Msg("State")
 }
 
 func loadImage(fn string) (*image.RGBA, error) {
 	if fn == "" {
-		return xorImage(512, 512), nil
+		return xorImage(400, 300), nil
 	}
 
 	f, err := os.Open(fn)
