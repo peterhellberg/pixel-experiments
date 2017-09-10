@@ -63,7 +63,7 @@ func main() {
 	flag.Float64Var(&posY, "y", 0.257, "pos.Y")
 	flag.Int64Var(&seed, "seed", 1, "seed")
 	flag.IntVar(&mode, "mode", 1, "mode")
-	flag.DurationVar(&delay, "delay", 64*time.Millisecond, "delay")
+	flag.DurationVar(&delay, "delay", 100*time.Millisecond, "delay")
 
 	flag.Parse()
 
@@ -79,7 +79,6 @@ func main() {
 }
 
 func setup(fn string, p pixel.Vec, seed int64) error {
-
 	m, err := loadImage(fn)
 	if err != nil {
 		m = xorImage(256, 256)
@@ -193,14 +192,6 @@ func pattern(p pixel.Vec) (float64, pixel.Vec, pixel.Vec) {
 
 func fbm(p pixel.Vec) float64 {
 	return noise.Eval2(p.X, p.Y)
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-
-	return b
 }
 
 func warp(fx, fy float64, k pixel.Vec) (int, int) {
@@ -344,7 +335,8 @@ func handleInput() {
 			pos.X -= 0.05
 			expand = false
 		case pixelgl.KeyS:
-			scale = -2.0
+			pos.X = 0
+			pos.Y = 0
 		}
 
 		logState()
@@ -430,4 +422,12 @@ func xorImage(w, h int) *image.RGBA {
 	}
 
 	return m
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+
+	return b
 }
