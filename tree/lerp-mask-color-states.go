@@ -12,9 +12,9 @@ import (
 
 func main() {
 	keypoints := GradientTable{
-		{colorful.MakeColor(color.NRGBA{243, 119, 54, 255}), 0.0},
-		{colorful.MakeColor(color.NRGBA{123, 192, 67, 255}), 0.5},
-		{colorful.MakeColor(color.NRGBA{255, 255, 255, 255}), 1.0},
+		{colorful.MakeColor(color.NRGBA{255, 255, 255, 255}), 0.0},
+		{colorful.MakeColor(color.NRGBA{123, 192, 67, 55}), 0.6},
+		{colorful.MakeColor(color.NRGBA{243, 119, 54, 55}), 1.0},
 	}
 
 	for i := 0; i < 100; i++ {
@@ -40,9 +40,9 @@ func main() {
 			`"B":%d,`+
 			`"A":%d`+
 			`},`+
-			`"circles":false,`+
+			`"circles":true,`+
 			`"light":false}`+"\n",
-			d, t, a, f, l, r, g, b, 255)
+			d, t, a, f, l, r, g, b, 55)
 	}
 }
 
