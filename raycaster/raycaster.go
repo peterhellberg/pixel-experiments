@@ -50,6 +50,23 @@ var world = [24][24]int{
 	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 }
 
+func getColor(x, y int) color.RGBA {
+	switch world[x][y] {
+	case 0:
+		return color.RGBA{64, 64, 64, 255}
+	case 1:
+		return color.RGBA{244, 115, 33, 255}
+	case 2:
+		return color.RGBA{54, 124, 43, 255}
+	case 3:
+		return color.RGBA{0, 125, 198, 255}
+	case 4:
+		return color.RGBA{255, 255, 255, 255}
+	default:
+		return color.RGBA{255, 194, 32, 255}
+	}
+}
+
 func frame() *image.RGBA {
 	m := image.NewRGBA(image.Rect(0, 0, width, height))
 
@@ -128,20 +145,7 @@ func frame() *image.RGBA {
 			drawEnd = height - 1
 		}
 
-		var c color.RGBA
-
-		switch world[worldX][worldY] {
-		case 1:
-			c = color.RGBA{244, 115, 33, 255}
-		case 2:
-			c = color.RGBA{54, 124, 43, 255}
-		case 3:
-			c = color.RGBA{0, 125, 198, 255}
-		case 4:
-			c = color.RGBA{255, 255, 255, 255}
-		default:
-			c = color.RGBA{255, 194, 32, 255}
-		}
+		c := getColor(worldX, worldY)
 
 		if side == 1 {
 			c.R = c.R / 2
@@ -157,6 +161,14 @@ func frame() *image.RGBA {
 			}
 		}
 	}
+
+	for x, row := range world {
+		for y, _ := range row {
+			m.Set(x, y, getColor(x, y))
+		}
+	}
+
+	m.Set(int(pos.X), int(pos.Y), color.RGBA{255, 0, 0, 255})
 
 	return m
 }
