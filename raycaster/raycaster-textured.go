@@ -81,14 +81,13 @@ func frame() *image.RGBA {
 	m := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	draw.Draw(m, image.Rect(0, 0, width, height/2), &image.Uniform{color.RGBA{192, 192, 192, 255}}, image.ZP, draw.Src)
-	draw.Draw(m, image.Rect(0, height/2, width, height), &image.Uniform{color.RGBA{255, 0, 0, 255}}, image.ZP, draw.Src)
 
 	for x := 0; x < width; x++ {
 		var (
+			step         image.Point
 			sideDist     pixel.Vec
 			perpWallDist float64
-			stepX, stepY int
-			hit, side    int
+			hit, side    bool
 
 			rayPos, worldX, worldY = pos, int(pos.X), int(pos.Y)
 
@@ -106,42 +105,48 @@ func frame() *image.RGBA {
 		)
 
 		if rayDir.X < 0 {
-			stepX = -1
+			step.X = -1
 			sideDist.X = (rayPos.X - float64(worldX)) * deltaDist.X
 		} else {
-			stepX = 1
+			step.X = 1
 			sideDist.X = (float64(worldX) + 1.0 - rayPos.X) * deltaDist.X
 		}
 
 		if rayDir.Y < 0 {
-			stepY = -1
+			step.Y = -1
 			sideDist.Y = (rayPos.Y - float64(worldY)) * deltaDist.Y
 		} else {
-			stepY = 1
+			step.Y = 1
 			sideDist.Y = (float64(worldY) + 1.0 - rayPos.Y) * deltaDist.Y
 		}
 
-		for hit == 0 {
+		for !hit {
 			if sideDist.X < sideDist.Y {
 				sideDist.X += deltaDist.X
-				worldX += stepX
-				side = 0
+				worldX += step.X
+				side = false
 			} else {
 				sideDist.Y += deltaDist.Y
-				worldY += stepY
-				side = 1
+				worldY += step.Y
+				side = true
 			}
 
 			if world[worldX][worldY] > 0 {
-				hit = 1
+				hit = true
 			}
 		}
 
-		if side == 0 {
-			perpWallDist = (float64(worldX) - rayPos.X + (1-float64(stepX))/2) / rayDir.X
+		var wallX float64
+
+		if side {
+			perpWallDist = (float64(worldY) - rayPos.Y + (1-float64(step.Y))/2) / rayDir.Y
+			wallX = rayPos.X + perpWallDist*rayDir.X
 		} else {
-			perpWallDist = (float64(worldY) - rayPos.Y + (1-float64(stepY))/2) / rayDir.Y
+			perpWallDist = (float64(worldX) - rayPos.X + (1-float64(step.X))/2) / rayDir.X
+			wallX = rayPos.Y + perpWallDist*rayDir.Y
 		}
+
+		wallX -= math.Floor(wallX)
 
 		lineHeight := int(float64(height) / perpWallDist)
 
@@ -155,36 +160,15 @@ func frame() *image.RGBA {
 			drawEnd = height - 1
 		}
 
-		var wallX float64
-
-		if side == 0 {
-			wallX = rayPos.Y + perpWallDist*rayDir.Y
-		} else {
-			wallX = rayPos.X + perpWallDist*rayDir.X
-		}
-
-		wallX -= math.Floor(wallX)
-
-		texX := int(wallX * float64(texWidth))
-
-		if side == 0 && rayDir.X > 0 {
-			texX = texWidth - texX - 1
-		}
-
-		if side == 1 && rayDir.Y < 0 {
-			texX = texWidth - texX - 1
-		}
-
 		c := getColor(worldX, worldY)
 
-		if side == 1 {
+		if side {
 			c.R = c.R / 2
 			c.G = c.G / 2
 			c.B = c.B / 2
 		}
 
 		for y := drawStart; y < drawEnd+1; y++ {
-
 			if y == drawStart {
 				m.Set(x, y, color.RGBA{c.R / 2, c.G / 2, c.B / 2, 255})
 			} else if y == drawEnd {
@@ -194,20 +178,20 @@ func frame() *image.RGBA {
 			}
 		}
 
-		var floorXWall, floorYWall float64
+		var floorWall pixel.Vec
 
-		if side == 0 && rayDir.X > 0 {
-			floorXWall = float64(worldX)
-			floorYWall = float64(worldY) + wallX
-		} else if side == 0 && rayDir.X < 0 {
-			floorXWall = float64(worldX) + 1.0
-			floorYWall = float64(worldY) + wallX
-		} else if side == 1 && rayDir.Y > 0 {
-			floorXWall = float64(worldX) + wallX
-			floorYWall = float64(worldY)
+		if !side && rayDir.X > 0 {
+			floorWall.X = float64(worldX)
+			floorWall.Y = float64(worldY) + wallX
+		} else if !side && rayDir.X < 0 {
+			floorWall.X = float64(worldX) + 1.0
+			floorWall.Y = float64(worldY) + wallX
+		} else if side && rayDir.Y > 0 {
+			floorWall.X = float64(worldX) + wallX
+			floorWall.Y = float64(worldY)
 		} else {
-			floorXWall = float64(worldX) + wallX
-			floorYWall = float64(worldY) + 1.0
+			floorWall.X = float64(worldX) + wallX
+			floorWall.Y = float64(worldY) + 1.0
 		}
 
 		distWall, distPlayer := perpWallDist, 0.0
@@ -218,8 +202,8 @@ func frame() *image.RGBA {
 			weight := (currentDist - distPlayer) / (distWall - distPlayer)
 
 			currentFloor := pixel.V(
-				weight*floorXWall+(1.0-weight)*pos.X,
-				weight*floorYWall+(1.0-weight)*pos.Y,
+				weight*floorWall.X+(1.0-weight)*pos.X,
+				weight*floorWall.Y+(1.0-weight)*pos.Y,
 			)
 
 			m.Set(x, y, floorTex.At(
