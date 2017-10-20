@@ -15,3 +15,4 @@ https://gist.github.com/peterhellberg/835eccabf95800555120cc8f0c9e16c2
 
 ## Textured walls
 ![](https://user-images.githubusercontent.com/565124/31817155-2d5d4922-b593-11e7-86d1-6ed83bbcd23d.png)
+![](https://user-images.githubusercontent.com/565124/31826180-a464ef40-b5b4-11e7-9b74-57d2b67b29b4.png)
