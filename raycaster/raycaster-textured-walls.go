@@ -27,38 +27,44 @@ var (
 	scale        = 3.0
 	wallDistance = 8.0
 
-	pos   = pixel.V(12.0, 12.5)
-	dir   = pixel.V(-1.0, 0.0)
-	plane = pixel.V(0.0, 0.66)
+	as actionSquare
+
+	pos, dir, plane pixel.Vec
 
 	textures = loadTextures()
 )
 
-var world = [24][24]int{
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1},
-	{1, 0, 0, 0, 2, 7, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 2, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 2, 2, 2, 2, 0, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 1},
-	{1, 0, 0, 0, 4, 0, 7, 0, 4, 0, 0, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 1},
-	{1, 4, 4, 4, 4, 4, 4, 0, 4, 0, 0, 0, 5, 5, 0, 5, 5, 5, 0, 5, 5, 0, 0, 1},
-	{1, 4, 0, 0, 0, 0, 0, 0, 4, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 1},
-	{1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 5, 0, 5, 5, 5, 5, 5, 5, 5, 0, 5, 0, 1},
-	{1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 5, 0, 5, 0, 0, 0, 0, 0, 5, 0, 5, 0, 1},
-	{1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 5, 5, 0, 0, 0, 0, 1},
-	{1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+func setup() {
+	pos = pixel.V(12.0, 12.5)
+	dir = pixel.V(-1.0, 0.0)
+	plane = pixel.V(0.0, 0.66)
+}
+
+var world = [24][26]int{
+	{9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9},
+	{9, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9, 9, 9},
+	{9, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9, 9},
+	{9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9, 9},
+	{9, 1, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 1, 9, 9},
+	{9, 1, 0, 0, 2, 7, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9},
+	{1, 0, 0, 0, 2, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 1, 9, 9},
+	{1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9},
+	{1, 0, 0, 0, 2, 2, 2, 2, 0, 2, 2, 0, 0, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 1, 9},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+	{1, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9},
+	{1, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9},
+	{1, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9},
+	{1, 0, 6, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9},
+	{1, 0, 6, 0, 4, 0, 0, 0, 4, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 1, 9, 9},
+	{1, 0, 6, 0, 4, 0, 7, 0, 4, 0, 0, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0, 0, 1, 9, 9},
+	{1, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 1, 9, 9},
+	{1, 4, 4, 4, 4, 4, 4, 0, 4, 0, 0, 0, 5, 5, 0, 5, 5, 5, 0, 5, 5, 0, 0, 1, 9, 9},
+	{1, 4, 0, 0, 0, 0, 0, 0, 4, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 1, 9, 9},
+	{1, 4, 0, 4, 0, 0, 0, 0, 4, 0, 0, 5, 0, 5, 5, 5, 5, 5, 5, 5, 0, 5, 0, 1, 9, 9},
+	{1, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 5, 0, 5, 0, 0, 0, 0, 0, 5, 0, 5, 0, 0, 1, 9},
+	{1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 5, 5, 0, 0, 0, 0, 0, 1, 9},
+	{1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9},
+	{9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9},
 }
 
 func loadTextures() *image.RGBA {
@@ -96,6 +102,8 @@ func getColor(x, y int) color.RGBA {
 		return color.RGBA{203, 161, 47, 255}
 	case 7:
 		return color.RGBA{255, 107, 0, 255}
+	case 9:
+		return color.RGBA{0, 0, 0, 0}
 	default:
 		return color.RGBA{255, 194, 32, 255}
 	}
@@ -262,19 +270,87 @@ func frame() *image.RGBA {
 }
 
 func minimap() *image.RGBA {
-	m := image.NewRGBA(image.Rect(0, 0, 24, 24))
+	m := image.NewRGBA(image.Rect(0, 0, 24, 26))
 
 	for x, row := range world {
 		for y, _ := range row {
 			c := getColor(x, y)
-			c.A = 96
+			if c.A == 255 {
+				c.A = 96
+			}
 			m.Set(x, y, c)
 		}
 	}
 
 	m.Set(int(pos.X), int(pos.Y), color.RGBA{255, 0, 0, 255})
 
+	if as.active {
+		m.Set(as.X, as.Y, color.RGBA{255, 255, 255, 255})
+	} else {
+		m.Set(as.X, as.Y, color.RGBA{64, 64, 64, 255})
+	}
+
 	return m
+}
+
+func getActionSquare() actionSquare {
+	pt := image.Pt(int(pos.X)+1, int(pos.Y))
+
+	a := dir.Angle()
+
+	switch {
+	case a > 2.8 || a < -2.8:
+		pt = image.Pt(int(pos.X)-1, int(pos.Y))
+	case a > -2.8 && a < -2.2:
+		pt = image.Pt(int(pos.X)-1, int(pos.Y)-1)
+	case a > -2.2 && a < -1.4:
+		pt = image.Pt(int(pos.X), int(pos.Y)-1)
+	case a > -1.4 && a < -0.7:
+		pt = image.Pt(int(pos.X)+1, int(pos.Y)-1)
+	case a > 0.4 && a < 1.0:
+		pt = image.Pt(int(pos.X)+1, int(pos.Y)+1)
+	case a > 1.0 && a < 1.7:
+		pt = image.Pt(int(pos.X), int(pos.Y)+1)
+	case a > 1.7:
+		pt = image.Pt(int(pos.X)-1, int(pos.Y)+1)
+	}
+
+	block := -1
+	active := pt.X > 0 && pt.X < 23 && pt.Y > 0 && pt.Y < 23
+
+	if active {
+		block = world[pt.X][pt.Y]
+	}
+
+	return actionSquare{
+		X:      pt.X,
+		Y:      pt.Y,
+		active: active,
+		block:  block,
+	}
+}
+
+type actionSquare struct {
+	X      int
+	Y      int
+	block  int
+	active bool
+}
+
+func (as actionSquare) toggle(n int) {
+	if as.active {
+		if world[as.X][as.Y] == 0 {
+			world[as.X][as.Y] = n
+		} else {
+			world[as.X][as.Y] = 0
+		}
+	}
+}
+
+func (as actionSquare) set(n int) {
+	if as.active {
+		world[as.X][as.Y] = n
+	}
 }
 
 func run() {
@@ -309,6 +385,8 @@ func run() {
 		dt := time.Since(last).Seconds()
 		last = time.Now()
 
+		as = getActionSquare()
+
 		if win.Pressed(pixelgl.KeyUp) || win.Pressed(pixelgl.KeyW) {
 			moveForward(3.5 * dt)
 		}
@@ -337,6 +415,46 @@ func run() {
 			showMap = !showMap
 		}
 
+		if win.JustPressed(pixelgl.Key1) {
+			as.set(1)
+		}
+
+		if win.JustPressed(pixelgl.Key2) {
+			as.set(2)
+		}
+
+		if win.JustPressed(pixelgl.Key3) {
+			as.set(3)
+		}
+
+		if win.JustPressed(pixelgl.Key4) {
+			as.set(4)
+		}
+
+		if win.JustPressed(pixelgl.Key5) {
+			as.set(5)
+		}
+
+		if win.JustPressed(pixelgl.Key6) {
+			as.set(6)
+		}
+
+		if win.JustPressed(pixelgl.Key7) {
+			as.set(7)
+		}
+
+		if win.JustPressed(pixelgl.Key0) {
+			as.set(0)
+		}
+
+		if win.JustPressed(pixelgl.KeySpace) {
+			as.toggle(3)
+		}
+
+		if as.block == 7 {
+			setup()
+		}
+
 		p := pixel.PictureDataFromImage(frame())
 
 		pixel.NewSprite(p, p.Bounds()).
@@ -351,7 +469,7 @@ func run() {
 				Draw(win, pixel.IM.
 					Moved(mc).
 					Rotated(mc, mapRot).
-					ScaledXY(pixel.ZV, pixel.V(-scale, scale)))
+					ScaledXY(pixel.ZV, pixel.V(-scale*2, scale*2)))
 		}
 
 		win.Update()
@@ -430,6 +548,8 @@ func main() {
 	flag.IntVar(&height, "h", height, "height")
 	flag.Float64Var(&scale, "s", scale, "scale")
 	flag.Parse()
+
+	setup()
 
 	pixelgl.Run(run)
 }
