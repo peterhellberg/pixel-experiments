@@ -15,7 +15,7 @@ import (
 var (
 	w, h, scale = float64(640), float64(360), float64(6)
 
-	p, bg = newPalette(palette.WebSafe[128:192]), color.RGBA{255, 228, 225, 255}
+	p, bg = newPalette(palette.Plan9), color.RGBA{255, 228, 225, 255}
 
 	balls = []*ball{
 		newRandomBall(30),
@@ -52,10 +52,10 @@ func run() {
 
 		imd.Color = lc
 		imd.Push(balls[0].pos, balls[1].pos, balls[2].pos)
-		imd.Line(18)
+		imd.Line(scale * 3)
 
 		imd.Push(balls[1].pos)
-		imd.Circle(balls[1].radius, 24)
+		imd.Circle(balls[1].radius, scale*4)
 
 		imd.Color = color.RGBA{
 			uint8((int(c0.R) + int(c2.R) + int(c1.R)) / 4),
@@ -86,6 +86,8 @@ func run() {
 }
 
 func main() {
+	rand.Seed(4)
+
 	go func() {
 		for range time.Tick(32 * time.Millisecond) {
 			for _, ball := range balls {
@@ -98,17 +100,20 @@ func main() {
 }
 
 func newRandomBall(radius float64) *ball {
+	bp := p.clone()
+
+	mass := math.Pi * (radius * radius)
+
 	return &ball{
 		pixel.V(w/2, h/2),
-		pixel.V((rand.Float64()*2)-1, (rand.Float64()*2)-1).Scaled(scale / 2),
-		math.Pi * (radius * radius),
-		radius, p.next(), p.clone(),
+		pixel.V((rand.Float64()*2)-1, (rand.Float64()*2)-1).Scaled(scale),
+		mass, radius, bp.random(), bp,
 	}
 }
 
 type ball struct {
 	pos     pixel.Vec
-	dir     pixel.Vec
+	vel     pixel.Vec
 	mass    float64
 	radius  float64
 	color   color.RGBA
@@ -116,21 +121,20 @@ type ball struct {
 }
 
 func (b *ball) update() {
-	b.pos.X += b.dir.X
-	b.pos.Y += b.dir.Y
+	b.pos = b.pos.Add(b.vel)
 
-	if b.pos.Y <= b.radius+6 || b.pos.Y >= h-(b.radius+6) {
-		b.dir.Y *= -1.0
+	if b.pos.Y <= b.radius+scale || b.pos.Y >= h-(b.radius+scale) {
+		b.vel.Y *= -1.0
 		b.color = b.palette.next()
 	}
 
-	if b.pos.X <= b.radius+6 || b.pos.X >= w-(b.radius+6) {
-		b.dir.X *= -1.0
+	if b.pos.X <= b.radius+scale || b.pos.X >= w-(b.radius+scale) {
+		b.vel.X *= -1.0
 		b.color = b.palette.next()
 	}
 
 	for _, a := range balls {
-		if b != a {
+		if a != b {
 			d := a.pos.Sub(b.pos)
 
 			if d.Len() > a.radius+b.radius {
@@ -143,10 +147,10 @@ func (b *ball) update() {
 			b.pos = b.pos.Sub(pen.Scaled(a.mass / (a.mass + b.mass)))
 
 			u := d.Unit()
-			v := 2 * (a.dir.Dot(u) - b.dir.Dot(u)) / (a.mass + b.mass)
+			v := 2 * (a.vel.Dot(u) - b.vel.Dot(u)) / (a.mass + b.mass)
 
-			a.dir = a.dir.Sub(u.Scaled(v * a.mass))
-			b.dir = b.dir.Add(u.Scaled(v * b.mass))
+			a.vel = a.vel.Sub(u.Scaled(v * a.mass))
+			b.vel = b.vel.Add(u.Scaled(v * b.mass))
 
 			a.color = a.palette.next()
 			b.color = b.palette.next()
@@ -173,7 +177,7 @@ type Palette struct {
 }
 
 func (p *Palette) clone() *Palette {
-	return &Palette{p.colors, len(p.colors), p.index}
+	return &Palette{p.colors, p.size, p.index}
 }
 
 func (p *Palette) next() color.RGBA {
