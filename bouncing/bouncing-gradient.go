@@ -118,19 +118,17 @@ type ball struct {
 func (b *ball) update() {
 	b.pos = b.pos.Add(b.vel)
 
-	var bounced bool
-
 	switch {
 	case b.pos.Y <= b.radius || b.pos.Y >= h-(b.radius):
 		b.vel.Y *= -1.0
-		bounced = true
+		b.color = p.next()
 
 		if b.pos.Y < b.radius {
 			b.pos.Y = b.radius
 		}
 	case b.pos.X <= b.radius || b.pos.X >= w-(b.radius):
 		b.vel.X *= -1.0
-		bounced = true
+		b.color = p.next()
 
 		if b.pos.X < b.radius {
 			b.pos.X = b.radius
@@ -153,13 +151,9 @@ func (b *ball) update() {
 			u := d.Unit()
 			v := 2 * (a.vel.Dot(u) - b.vel.Dot(u)) / (a.mass + b.mass)
 
-			a.vel = a.vel.Sub(u.Scaled(v * b.mass))
-			b.vel = b.vel.Add(u.Scaled(v * a.mass))
+			a.vel = a.vel.Sub(u.Scaled(v * a.mass))
+			b.vel = b.vel.Add(u.Scaled(v * b.mass))
 		}
-	}
-
-	if bounced {
-		b.color = p.next()
 	}
 }
 
