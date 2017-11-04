@@ -63,6 +63,13 @@ func run() {
 
 		imd.Polygon(scale)
 
+		for _, ball := range balls {
+			imd.Color = color.RGBA{ball.color.R, ball.color.G, ball.color.B, 155}
+			imd.Push(ball.pos)
+		}
+
+		imd.Polygon(0)
+
 		win.Clear(bg)
 		imd.Draw(win)
 		win.Update()
