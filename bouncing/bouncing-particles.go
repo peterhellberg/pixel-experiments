@@ -12,13 +12,13 @@ import (
 )
 
 var (
-	w, h, s, scale = float64(640), float64(360), float64(0.3), float64(48)
+	w, h, s, scale = float64(640), float64(360), float64(2.3), float64(32)
 
 	p, bg = newPalette(Colors), color.RGBA{32, p.color().G, 32, 255}
 
 	balls = []*ball{
-		newRandomBall(scale / 2),
-		newRandomBall(scale / 2),
+		newRandomBall(scale),
+		newRandomBall(scale),
 	}
 )
 
@@ -121,7 +121,10 @@ func main() {
 }
 
 func newParticleAt(pos, vel pixel.Vec) *particle {
-	return &particle{pos, vel, p.color(), 1}
+	c := p.color()
+	c.A = 5
+
+	return &particle{pos, vel, c, rand.Float64() * 1.5}
 }
 
 func newRandomBall(radius float64) *ball {
@@ -149,7 +152,7 @@ type particle struct {
 
 func (p *particle) update() {
 	p.pos = p.pos.Add(p.vel)
-	p.life -= 0.05
+	p.life -= 0.03
 
 	switch {
 	case p.pos.Y < 0 || p.pos.Y >= h:
@@ -221,15 +224,25 @@ func (b *ball) update() {
 	if bounced {
 		b.color = p.next()
 		b.particles = append(b.particles,
-			newParticleAt(b.pos, b.vel.Rotated(1).Scaled(rand.Float64()+1)),
-			newParticleAt(b.pos, b.vel.Rotated(2).Scaled(rand.Float64()+1)),
-			newParticleAt(b.pos, b.vel.Rotated(3).Scaled(rand.Float64()+1)),
-			newParticleAt(b.pos, b.vel.Rotated(4).Scaled(rand.Float64()+1)),
-			newParticleAt(b.pos, b.vel.Rotated(5).Scaled(rand.Float64()+1)),
-			newParticleAt(b.pos, b.vel.Rotated(6).Scaled(rand.Float64()+1)),
-			newParticleAt(b.pos, b.vel.Rotated(7).Scaled(rand.Float64()+1)),
-			newParticleAt(b.pos, b.vel.Rotated(8).Scaled(rand.Float64()+1)),
-			newParticleAt(b.pos, b.vel.Rotated(9).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(1).Scaled(rand.Float64())),
+			newParticleAt(b.pos, b.vel.Rotated(2).Scaled(rand.Float64())),
+			newParticleAt(b.pos, b.vel.Rotated(3).Scaled(rand.Float64())),
+			newParticleAt(b.pos, b.vel.Rotated(4).Scaled(rand.Float64())),
+			newParticleAt(b.pos, b.vel.Rotated(5).Scaled(rand.Float64())),
+			newParticleAt(b.pos, b.vel.Rotated(6).Scaled(rand.Float64())),
+			newParticleAt(b.pos, b.vel.Rotated(7).Scaled(rand.Float64())),
+			newParticleAt(b.pos, b.vel.Rotated(8).Scaled(rand.Float64())),
+			newParticleAt(b.pos, b.vel.Rotated(9).Scaled(rand.Float64())),
+
+			newParticleAt(b.pos, b.vel.Rotated(10).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(20).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(30).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(40).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(50).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(60).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(70).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(80).Scaled(rand.Float64()+1)),
+			newParticleAt(b.pos, b.vel.Rotated(90).Scaled(rand.Float64()+1)),
 		)
 	}
 }
