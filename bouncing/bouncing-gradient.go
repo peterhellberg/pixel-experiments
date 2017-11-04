@@ -36,7 +36,7 @@ func run() {
 	}
 
 	imd := imdraw.New(nil)
-	imd.EndShape = imdraw.RoundEndShape
+	imd.EndShape = imdraw.SharpEndShape
 
 	for !win.Closed() {
 		win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
@@ -62,12 +62,6 @@ func run() {
 		}
 
 		imd.Polygon(scale)
-
-		//for _, ball := range balls {
-		//	imd.Color = ball.color
-		//	imd.Push(ball.pos)
-		//	imd.Circle(ball.radius, 0)
-		//}
 
 		win.Clear(bg)
 		imd.Draw(win)
