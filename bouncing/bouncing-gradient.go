@@ -64,11 +64,11 @@ func run() {
 		imd.Polygon(scale)
 
 		for _, ball := range balls {
-			imd.Color = color.RGBA{ball.color.R, ball.color.G, ball.color.B, 155}
+			imd.Color = color.RGBA{ball.color.R, ball.color.G, ball.color.B, 128}
 			imd.Push(ball.pos)
 		}
 
-		imd.Polygon(0)
+		imd.Polygon(scale * 0.3)
 
 		win.Clear(bg)
 		imd.Draw(win)
@@ -103,7 +103,7 @@ func center() pixel.Vec {
 }
 
 func randomVelocity() pixel.Vec {
-	return pixel.V((rand.Float64()*2)-1, (rand.Float64()*2)-1)
+	return pixel.V((rand.Float64()*2)-1, (rand.Float64()*2)-1).Scaled(scale / 5)
 }
 
 type ball struct {
@@ -153,11 +153,8 @@ func (b *ball) update() {
 			u := d.Unit()
 			v := 2 * (a.vel.Dot(u) - b.vel.Dot(u)) / (a.mass + b.mass)
 
-			a.vel = a.vel.Sub(u.Scaled(v * a.mass))
-			b.vel = b.vel.Add(u.Scaled(v * b.mass))
-
-			//b.color = p.next()
-			//a.color = p.next()
+			a.vel = a.vel.Sub(u.Scaled(v * b.mass))
+			b.vel = b.vel.Add(u.Scaled(v * a.mass))
 		}
 	}
 
