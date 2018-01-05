@@ -17,6 +17,44 @@ github.com/peterhellberg/plasma
 
 ## Experiments
 
+### [bouncing](/bouncing)
+
+![bouncing](https://user-images.githubusercontent.com/565124/32401910-7cd87fb2-c119-11e7-8121-7fb46e5e11a8.gif)
+![bouncing](https://user-images.githubusercontent.com/565124/32391018-da783e62-c0d0-11e7-9981-07fcbd946432.gif)
+
+### [metaballs](/metaballs)
+
+![metaballs](https://user-images.githubusercontent.com/565124/31692148-ec0a23a6-b398-11e7-9d04-6f3b1f01393d.gif)
+![metaballs](https://user-images.githubusercontent.com/565124/31692972-7575c6a6-b39c-11e7-9de1-1d1c9a04e617.gif)
+
+### [particles](/particles)
+
+![particles](https://user-images.githubusercontent.com/565124/28490620-e47474c4-6ede-11e7-856f-00aa72ca6aa2.gif)
+![particles](https://user-images.githubusercontent.com/565124/28492208-29f66672-6eff-11e7-8222-0b25fa9539e6.gif)
+
+### [raycaster](/raycaster)
+
+![raycaster animation](https://user-images.githubusercontent.com/565124/31828029-798e6620-b5b9-11e7-96b7-fda540755745.gif)
+
+![raycaster](https://user-images.githubusercontent.com/565124/31826180-a464ef40-b5b4-11e7-9b74-57d2b67b29b4.png)
+
+### [tree](/tree)
+
+![tree animation](https://user-images.githubusercontent.com/565124/29730798-1aae495c-89e2-11e7-8071-3359f3c74088.gif)
+
+![tree](https://user-images.githubusercontent.com/565124/29733012-84136aa4-89eb-11e7-98a7-7f60b7ba6399.png)
+![tree](https://user-images.githubusercontent.com/565124/29735431-36e99682-89f9-11e7-9027-99a0f06b0ff1.png)
+
+### [tunnel](/tunnel)
+
+![plasma-tunnel](https://cloud.githubusercontent.com/assets/565124/25528930/48bc195c-2c20-11e7-8db8-d3b01b4a8903.gif)
+
+![xor-tunnel](https://cloud.githubusercontent.com/assets/565124/25475885/8f018e6c-2b38-11e7-9a9e-9ca281f99c1b.png)
+
+### [warping](/warping)
+
+![Warping](https://user-images.githubusercontent.com/565124/30237177-f138eed2-952c-11e7-9a13-02319e8d18aa.png)
+
 ### [xor](/xor.go)
 
 ![XOR](https://assets.c7.se/screenshots/xor-20170426-001349.png)
