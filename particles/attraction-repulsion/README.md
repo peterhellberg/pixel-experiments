@@ -4,6 +4,16 @@ https://gist.github.com/peterhellberg/8ba8dd0e55d537f9a9582bb321732dc9
 
 Attraction and Repulsion Forces based on [The Coding Train - Coding Challenge #56](https://www.youtube.com/watch?v=OAcXnzRNiCY)
 
+| Key         | Description                     |
+|------------ |---------------------------------|
+| C           | Clear particles and attractors  |
+| A           | Add attractor at mouse position |
+| P           | Add particle at mouse position  |
+| Up          | Increase gravity                |
+| Down        | Decrease gravity                |
+| Mouse Left  | Add particles                   |
+| Mouse Right | Add attractor                   |
+
 ![](https://user-images.githubusercontent.com/565124/34926298-a841177c-f9ae-11e7-9a80-ba8e276506fd.png)
 
 ![](https://user-images.githubusercontent.com/565124/34997896-ec9eb1ce-fadd-11e7-91fc-a40d942678c4.png)
