@@ -101,7 +101,7 @@ func run() {
 			attractors = []pixel.Vec{}
 		}
 
-		if win.JustPressed(pixelgl.MouseButtonRight) {
+		if win.JustPressed(pixelgl.MouseButtonRight) || win.JustPressed(pixelgl.KeyA) {
 			attractors = append(attractors, win.MousePosition())
 		}
 
@@ -113,7 +113,7 @@ func run() {
 			G -= 0.01
 		}
 
-		if win.Pressed(pixelgl.MouseButtonLeft) {
+		if win.Pressed(pixelgl.MouseButtonLeft) || win.JustPressed(pixelgl.KeyP) {
 			particles = append(particles, &particle{
 				pos:  win.MousePosition(),
 				vel:  pixel.V(rand.Float64()-0.5, rand.Float64()-0.5).Scaled(0.15),
