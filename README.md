@@ -27,6 +27,10 @@ go get -u -d github.com/peterhellberg/pixel-experiments
 ![particles](https://user-images.githubusercontent.com/565124/28490620-e47474c4-6ede-11e7-856f-00aa72ca6aa2.gif)
 ![particles](https://user-images.githubusercontent.com/565124/28492208-29f66672-6eff-11e7-8222-0b25fa9539e6.gif)
 
+### [pong](/pong)
+
+![pong](https://user-images.githubusercontent.com/565124/35081700-f416c566-fc15-11e7-83d9-1fe349121994.png)
+
 ### [raycaster](/raycaster)
 
 ![raycaster animation](https://user-images.githubusercontent.com/565124/31828029-798e6620-b5b9-11e7-96b7-fda540755745.gif)
