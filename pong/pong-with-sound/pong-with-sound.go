@@ -154,8 +154,13 @@ func (p *pong) update(win *pixelgl.Window) {
 		}()
 
 		p.velocity.Y = -p.velocity.Y
-	case p.ball.X < 8 || p.ball.X > p.Max.X+8:
 
+		if p.ball.Y < 16 {
+			p.ball.Y = 16
+		} else {
+			p.ball.Y = p.Max.Y - 16
+		}
+	case p.ball.X < 8 || p.ball.X > p.Max.X+8:
 		go func() {
 			speaker.Play(peeeeeep)
 			peeeeeep.Seek(0)
