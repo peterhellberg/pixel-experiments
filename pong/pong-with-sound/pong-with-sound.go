@@ -59,10 +59,15 @@ func main() {
 		if err == nil {
 			win.SetSmooth(false)
 
+			last := time.Now()
+
 			for !win.Closed() {
+				dt := time.Since(last).Seconds()
+				last = time.Now()
+
+				p.update(win, dt)
 				p.input(win)
 				p.draw(win)
-				p.update(win)
 			}
 		}
 	})
@@ -129,7 +134,7 @@ func (p *pong) draw(win *pixelgl.Window) {
 	imd.Draw(win)
 }
 
-func (p *pong) update(win *pixelgl.Window) {
+func (p *pong) update(win *pixelgl.Window, dt float64) {
 	switch {
 	case p.left.Contains(p.ball):
 		go func() {
@@ -181,7 +186,7 @@ func (p *pong) update(win *pixelgl.Window) {
 		p.ball = p.Center()
 	}
 
-	p.ball = p.ball.Add(p.velocity)
+	p.ball = p.ball.Add(p.velocity.Scaled(dt * 60))
 
 	p.left.update()
 	p.right.update()
