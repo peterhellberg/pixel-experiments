@@ -17,6 +17,10 @@ go get -u -d github.com/peterhellberg/pixel-experiments
 ![bouncing](https://user-images.githubusercontent.com/565124/32401910-7cd87fb2-c119-11e7-8121-7fb46e5e11a8.gif)
 ![bouncing](https://user-images.githubusercontent.com/565124/32391018-da783e62-c0d0-11e7-9981-07fcbd946432.gif)
 
+### [double-pendulum](/double-pendulum)
+
+![double-pendulum](https://user-images.githubusercontent.com/565124/36648903-27c31850-1a99-11e8-8538-76fe63368185.gif)
+
 ### [metaballs](/metaballs)
 
 ![metaballs](https://user-images.githubusercontent.com/565124/31692148-ec0a23a6-b398-11e7-9d04-6f3b1f01393d.gif)
