@@ -10,15 +10,14 @@ import (
 )
 
 var (
-	g   = 0.1
-	r1  = 180.0
-	r2  = 90.0
-	m1  = 32.0
-	m2  = 16.0
-	a1  = math.Pi / 2
-	a2  = math.Pi / 3
-	a1v = 0.0
-	a2v = 0.0
+	g      = 0.1
+	r1     = 180.0
+	r2     = 90.0
+	m1     = 32.0
+	m2     = 16.0
+	a1v    = 0.0
+	a2v    = 0.0
+	a1, a2 = a1a2DefaultValues()
 )
 
 func run() {
@@ -38,8 +37,7 @@ func run() {
 		win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
 
 		if win.JustPressed(pixelgl.KeySpace) {
-			a1 = math.Pi / 2
-			a2 = math.Pi / 3
+			a1, a2 = a1a2DefaultValues()
 		}
 
 		win.Clear(color.NRGBA{44, 44, 84, 255})
@@ -86,6 +84,10 @@ func update() (pixel.Vec, pixel.Vec) {
 
 func main() {
 	pixelgl.Run(run)
+}
+
+func a1a2DefaultValues() (float64, float64) {
+	return math.Pi / 2, math.Pi / 3
 }
 
 func a1aCalculation() float64 {
